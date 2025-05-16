@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 log = logging.getLogger(__name__)
 
 # Load environment variables from .env file
-load_dotenv()
+# load_dotenv()
 
 endpoint = os.getenv("AOAI_ENDPOINT")
 key = os.getenv("AOAI_KEY")
