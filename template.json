@@ -1,0 +1,32 @@
+[
+    {
+        "id": "7Eleven",
+        "name": "7E",
+        "color": ["#00A54F", "#EE1D23", "F58220"]
+    },
+    {
+        "id": "Lawson",
+        "name": "LW",
+        "color": ["#0068c4"]
+    },
+    {
+        "id": "FamilyMart",
+        "name": "FM",
+        "color": ["#00C64F", "#1CA5EF"]
+    },
+    {
+        "id": "SeicoMart",
+        "name": "SeiCo",
+        "color": ["#FF7546"]
+    },
+    {
+        "id": "MaxValu",
+        "name": "MV",
+        "color": ["#B60081"]
+    },
+    {
+        "id": "MiniStop",
+        "name": "Mini",
+        "color": ["#003894", "#FCC800"]
+    }
+]

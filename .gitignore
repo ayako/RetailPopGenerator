@@ -1,0 +1,31 @@
+# Python byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Installer logs
+pip-log.txt
+
+# dotenv environment file
+.env
+
+# VS Code settings folder
+.vscode/
+
+# Logs
+*.log
+
+# Generated images
+pop_image*.jpg
+
+# OS-specific files
+.DS_Store
+Thumbs.db
