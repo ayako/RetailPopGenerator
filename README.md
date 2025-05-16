@@ -4,7 +4,7 @@ Retail Store POP Generator
 小売店舗の POP (テキストと画像) を自動生成します。/ Auto-create POP (text and image) for retail stores。
 
 <!-- App Screenshot -->
-![POP Generator Screenshot](RetailPOPCreator_20250516.png)
+![POP Generator Screenshot](RetailPOPGenerator_20250516.png)
 
 ## 利用方法 | Usage
 
