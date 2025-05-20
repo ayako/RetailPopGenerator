@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>POP Generator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="layout">
+    <header class="title">
+      <h1>POP Generator</h1>
+      <p>入力された情報から POP を自動生成します。| Create POP Image from your input.</p>
+    </header>
+
+    <aside class="input-panel">
+      <div class="section">
+        <div class="field">
+          <label for="objectives">やりたいこと、目的を入力 | Input Objectives</label>
+          <textarea id="objectives" rows="4" placeholder="例: 新商品をアピールしたい"></textarea>
+          <button id="generate-inputs-btn" disabled>Generate inputs</button>
+        </div>
+      </div>
+
+      <div class="section inputs-section">
+        <div class="field">
+          <label for="copy-text-main">メインテキスト | Letters to include as main</label>
+          <input type="text" id="copy-text-main" />
+        </div>
+        <div class="field">
+          <label for="copy-text-sub">サブテキスト | Letters to include as sub</label>
+          <input type="text" id="copy-text-sub" />
+        </div>
+        <div class="field">
+          <label for="captions-ja">生成したい画像の説明 | Image captions to generate</label>
+          <textarea id="captions-ja" rows="3"></textarea>
+        </div>
+        <div class="field">
+          <div id="captions-en" class="readonly"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="field">
+          <label for="template-container">テンプレート | Select Templates</label>
+          <div id="template-container"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <button id="generate-pop-btn" disabled>Generate POP</button>
+      </div>
+      <div class="section">
+        <div class="field">
+          <label for="edit-prompt">編集用プロンプト | Edit Prompt</label>
+          <textarea id="edit-prompt" rows="3" disabled></textarea>
+          <button id="edit-image-btn" disabled>Edit Image</button>
+        </div>
+      </div>
+
+
+    </aside>
+
+    <main class="image-panel">
+      <div id="image-output" class="images-grid"></div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

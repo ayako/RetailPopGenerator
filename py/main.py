@@ -20,7 +20,7 @@ for key in ('copy_text_main', 'copy_text_sub', 'captions_en', 'captions_ja'):
         st.session_state[key] = ''
 
 # Load template choices from JSON
-template_path = os.path.join(os.path.dirname(__file__), 'template.json')
+template_path = os.path.join(os.path.dirname(__file__), '..', 'template.json')
 try:
     with open(template_path, 'r', encoding='utf-8') as tf:
         _templates_json = json.load(tf)

@@ -29,3 +29,9 @@ pop_image*.jpg
 # OS-specific files
 .DS_Store
 Thumbs.db
+
+# Python virtual environment
+.venv/
+
+# Node.js dependencies
+node_modules/

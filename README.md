@@ -1,15 +1,17 @@
 # RetailPopGenerator
 Retail Store POP Generator
 
-小売店舗の POP (テキストと画像) を自動生成します。/ Auto-create POP (text and image) for retail stores。
+小売店舗の POP (テキストと画像) を自動生成します。/ Auto-create POP (text and image) for retail stores.
 
 <!-- App Screenshot -->
-![POP Generator Screenshot](RetailPOPGenerator_20250516.png)
+![POP Generator Screenshot](RetailPOPGenerator_20250520.png)
 
 ## 利用方法 | Usage
 
 ### 前提条件 | Prerequisites
-- Python 3.8 以上 / Python 3.8 or higher
+- 以下のいずれか / either of 
+    - Node.js v16 以上 / Node.js v16 or higher
+    - Python 3.8 以上 / Python 3.8 or higher
 - チャットおよび画像生成用の Azure OpenAI リソース / Azure OpenAI resource with chat and image deployments (GPT-4o-mini && GPT-Image-1)
 
 
@@ -20,6 +22,11 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 
 # 依存パッケージのインストール / Install dependencies
+## Node.js
+cd js
+npm install
+## Python
+cd py
 pip install -r requirements.txt
 ```
 
@@ -35,6 +42,9 @@ AOAI_IMAGE_DEPLOYMENT_NAME=<image-deployment-name>
 
 ### 実行方法 | Running the App
 ```powershell
-streamlit run main.py
+## Node.js
+npm start   #from *js* directory
+## Python
+streamlit run main.py   #from *py* directory
 ```
 
