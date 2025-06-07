@@ -9,15 +9,15 @@
 <body>
   <div class="layout">
     <header class="title">
-      <h1>POP Generator</h1>
-      <p>入力された情報から POP を自動生成します。| Create POP Image from your input.</p>
+      <h1>Image and Video Ad Generator</h1>
+      <p>入力された情報から広告画像&動画を自動生成します。| Create Ad image & video from your input.</p>
     </header>
 
     <aside class="input-panel">
       <div class="section">
         <div class="field">
           <label for="objectives">やりたいこと、目的を入力 | Input Objectives</label>
-          <textarea id="objectives" rows="4" placeholder="例: 新商品をアピールしたい"></textarea>
+          <textarea id="objectives" rows="4" placeholder="例: 新発売のいちごソフトクリームをアピールしたい"></textarea>
           <button id="generate-inputs-btn" disabled>Generate inputs</button>
         </div>
       </div>
@@ -32,7 +32,7 @@
           <input type="text" id="copy-text-sub" />
         </div>
         <div class="field">
-          <label for="captions-ja">生成したい画像の説明 | Image captions to generate</label>
+          <label for="captions-ja">画像 or 動画生成キャプション | Prompt to generate image or video</label>
           <textarea id="captions-ja" rows="3"></textarea>
         </div>
         <div class="field">
@@ -48,7 +48,18 @@
       </div>
 
       <div class="section">
-        <button id="generate-pop-btn" disabled>Generate POP</button>
+        <div class="field">
+          <label for="toggle-generate">生成モード | Generate Mode</label>
+          <div class="toggle-container">
+            <input type="checkbox" id="toggle-generate" name="generate-mode" />
+            <label for="toggle-generate" class="toggle-label">
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <button id="generate-btn" disabled>Generate</button>
       </div>
       <div class="section">
         <div class="field">

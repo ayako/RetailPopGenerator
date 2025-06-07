@@ -4,12 +4,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const copyTextMain = document.getElementById('copy-text-main');
   const copyTextSub = document.getElementById('copy-text-sub');
   const captionsJa = document.getElementById('captions-ja');
-  const genPopBtn = document.getElementById('generate-pop-btn');
+  const genBtn = document.getElementById('generate-btn');
   const imageOutput = document.getElementById('image-output');
   const captionsEnDiv = document.getElementById('captions-en');
   const templateContainer = document.getElementById('template-container');
   const editPrompt   = document.getElementById('edit-prompt');
   const editImageBtn = document.getElementById('edit-image-btn');
+  const toggleGenerate = document.getElementById('toggle-generate');
+  const toggleLabel = document.querySelector('.toggle-label');
 
   // Load template.json and render as checkboxes
   const tplRes = await fetch('/template.json');
@@ -38,10 +40,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const data = await res.json();
     copyTextMain.value = data.copy_text_main;
     copyTextSub.value = data.copy_text_sub;
-    captionsJa.value = data.captions_ja;
-    captionsEnDiv.textContent = data.captions_en;
+    captionsJa.value = data.image_prompt_ja;
+    captionsEnDiv.textContent = data.image_prompt_en;
     genInputsBtn.disabled = false;
-    genPopBtn.disabled = false;
+    genBtn.disabled = false;
   });
 
   // enable button only when there's any non-blank text
@@ -51,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 有効条件：メインテキスト／画像説明いずれも非空
   function updateGenPopState() {
-    genPopBtn.disabled = !(
+    genBtn.disabled = !(
       copyTextMain.value.trim() &&
       captionsJa.value.trim()
     );
@@ -59,8 +61,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   copyTextMain.addEventListener('input', updateGenPopState);
   captionsJa.addEventListener('input', updateGenPopState);
 
-  genPopBtn.addEventListener('click', async () => {
-    genPopBtn.disabled = true;
+  genBtn.addEventListener('click', async () => {
+    genBtn.disabled = true;
     const promptBase = `${captionsJa.value} Clearly shown Main Text: ${copyTextMain.value}, Sub Text: ${copyTextSub.value}`;
     imageOutput.innerHTML = '';
 
@@ -111,7 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     editPrompt.value = '';
     editImageBtn.disabled = true;
 
-    genPopBtn.disabled = false;
+    genBtn.disabled = false;
   });
 
   // enable the Edit Image button only when there is edit text
@@ -155,4 +157,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     editImageBtn.disabled = false;
   });
+
+  // Update toggle button text based on state
+  toggleGenerate.addEventListener('change', () => {
+    if (toggleGenerate.checked) {
+      toggleLabel.textContent = 'Video';
+    } else {
+      toggleLabel.textContent = 'Image';
+    }
+  });
+
+  // Initialize toggle button text
+  toggleLabel.textContent = toggleGenerate.checked ? 'Video' : 'Image';
+
 });

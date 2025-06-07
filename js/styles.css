@@ -109,3 +109,45 @@ button {
   border-radius: 3px;
   z-index: 1;
 }
+
+/* Toggle switch container */
+.toggle-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 80px;
+  height: 34px;
+  background: #ddd;
+  border-radius: 34px;
+  cursor: pointer;
+}
+
+/* Hidden checkbox */
+.toggle-container input[type="checkbox"] {
+  display: none;
+}
+
+/* Toggle label */
+.toggle-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  width: 80px;
+  height: 34px;
+  background: #ccc;
+  border-radius: 34px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  line-height: 34px; /* Match height for vertical centering */
+  transition: 0.3s;
+}
+
+/* Move toggle label when checked */
+.toggle-container input[type="checkbox"]:checked + .toggle-label {
+  background: #999;
+  transform: translateX(46px);
+}
