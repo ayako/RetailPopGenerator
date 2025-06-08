@@ -20,8 +20,17 @@ if (!process.env.WEBSITE_SITE_NAME) {
 }
 
 const endpoint = process.env['AOAI_ENDPOINT']?.replace(/\/$/, '') || '';
+const chatEndpoint = process.env['AOAI_CHAT_ENDPOINT']?.replace(/\/$/, '') || '';
+const imageEndpoint = process.env['AOAI_IMAGE_ENDPOINT']?.replace(/\/$/, '') || '';
+const videoEndpoint = process.env['AOAI_VIDEO_ENDPOINT']?.replace(/\/$/, '') || '';
 const apiKey = process.env['AOAI_KEY'] || '';
+const chatApiKey = process.env['AOAI_CHAT_KEY'] || '';
+const imageApiKey = process.env['AOAI_IMAGE_KEY'] || '';
+const videoApiKey = process.env['AOAI_VIDEO_KEY'] || '';
 const apiVersion = process.env['AOAI_API_VERSION'] || '';
+const chatApiVersion = process.env['AOAI_CHAT_API_VERSION'] || '';
+const imageApiVersion = process.env['AOAI_IMAGE_API_VERSION'] || '';
+const videoApiVersion = process.env['AOAI_VIDEO_API_VERSION'] || '';
 const imageDeploymentName = process.env['AOAI_IMAGE_DEPLOYMENT_NAME'] || '';
 const videoDeploymentName = process.env['AOAI_VIDEO_DEPLOYMENT_NAME'] || '';
 const chatDeploymentName = process.env['AOAI_CHAT_DEPLOYMENT_NAME'] || '';
@@ -33,7 +42,8 @@ const chatDeploymentName = process.env['AOAI_CHAT_DEPLOYMENT_NAME'] || '';
  */
 async function generateInputs(objectives) {
 
-  const url = `${endpoint}/openai/deployments/${chatDeploymentName}/chat/completions?api-version=${apiVersion}`;
+  const url = `${chatEndpoint}/openai/deployments/${chatDeploymentName}/chat/completions?api-version=${chatApiVersion}`;
+  console.log('Create inputs with Chat Completions. Objectives:', objectives);
   const resp = await axios.post(url, {
     messages: [{ role: 'user', content: `あなたは小売店舗の広告を生成するAIアシスタントです。以下の目的に基づいて、適切なテキストと画像や動画を生成するためのプロンプトを生成します。テキストは日本語で作成します。背景となる画像や動画を生成するプロンプトは英語で作成し、日本語に翻訳してください.[{'copy_text_main':'主となるテキスト','copy_text_sub':'サブテキスト','image_prompt_en':'image generation prompt','image_prompt_ja':'画像生成プロンプト','video_prompt_en':'video generation prompt','video_prompt_ja':'動画生成プロンプト'}] 目的: ${objectives}` }],
     max_tokens: 1000,
@@ -71,7 +81,7 @@ async function generateInputs(objectives) {
       }
     }
   }, {
-    headers: { 'api-key': apiKey, 'Content-Type': 'application/json' }
+    headers: { 'api-key': chatApiKey, 'Content-Type': 'application/json' }
   });
   // pick the JSON content and parse
   const content = resp.data.choices[0].message.content;
@@ -85,16 +95,29 @@ async function generateInputs(objectives) {
  * @returns {Promise<string>} Path to saved JPG file
  */
 async function generateImage(prompt, filePath) {
-  const url = `${endpoint}/openai/deployments/${imageDeploymentName}/images/generations?api-version=${apiVersion}`;
+  const url = `${imageEndpoint}/openai/deployments/${imageDeploymentName}/images/generations?api-version=${imageApiVersion}`;
   const body = { "prompt": prompt, "n": 1, "size": "1024x1024" };
   console.log('Generating image: request body = ', body);
-  const bodyJson = JSON.stringify(body);
-  const resp = await axios.post(url, bodyJson, {
-     headers: { 'api-key': apiKey, 'Content-Type': 'application/json' }
-   });
-   const b64 = resp.data.data[0].b64_json;
-   fs.writeFileSync(filePath, Buffer.from(b64, 'base64'));
-   return filePath;
+
+  const resp = await axios.post(url, body, {
+    headers: { 'api-key': imageApiKey, 'Content-Type': 'application/json' }
+    });
+  if (resp.status == 200) {
+    try {
+      const b64 = resp.data.data[0].b64_json;
+      fs.writeFileSync(filePath, Buffer.from(b64, 'base64'));
+      console.log(`Generated image saved as "${filePath}"`);
+      return filePath;
+    } catch (err) {
+      console.error('Error generating image:', err);
+      throw new Error('Failed to generate image');
+    }
+  } else {
+    // Log response data when an error occurs
+    console.error('Error while generating image:');
+    throw new Error(`Failed while generating image. API response was: ${resp.status}`);
+  }
+
 }
 
 /**
@@ -105,7 +128,7 @@ async function generateImage(prompt, filePath) {
  */
 async function editImage(prompt, filePath) {
   console.log(`Editing image ${filePath} with prompt: ${prompt}`);
-  const url = `${endpoint}/openai/deployments/${imageDeploymentName}/images/edits?api-version=${apiVersion}`;
+  const url = `${imageEndpoint}/openai/deployments/${imageDeploymentName}/images/edits?api-version=${imageApiVersion}`;
 
   const form = new FormData();
   form.append('image', fs.createReadStream(filePath));
@@ -114,42 +137,46 @@ async function editImage(prompt, filePath) {
   form.append('n', 1);
 
   const headers = form.getHeaders();
-  headers['api-key'] = apiKey;
+  headers['api-key'] = imageApiKey;
 
-  const resp = await axios.post(url, form, { headers });
+  const resp = await axios.post(url, form, { headers });  
   
-  fs.writeFileSync(filePath, Buffer.from(b64, 'base64'));
-  
+  if (resp.status == 200) {
     try {
-      const imageData = resp.data.data[0].b64_json;
-      const buffer = Buffer.from(imageData, 'base64');
-      fs.writeFileSync(filePath, buffer);
+      const b64 = resp.data.data[0].b64_json;
+      fs.writeFileSync(filePath, Buffer.from(b64, 'base64'));
+      console.log(`Edited image saved as "${filePath}"`);
       return filePath;
     } catch (err) {
-      console.error('Error editing image:', err);
-      throw new Error('Failed to edit image using OpenAI API');
+      console.error('Error editinging image:', err);
+      throw new Error('Failed to edit image');
     }
-  
+  } else {
+    // Log response data when an error occurs
+    console.error('Error while editing image:');
+    throw new Error(`Failed while editing image. API response was: ${resp.status}`);
+  }
 }
 
 /**
  * Generate a video based on prompt, save as mp4, and return file path
  * @param {string} prompt
  * @param {string} filePath  Absolute path to save the JPG
- * @returns {Promise<string>} Path to saved JPG file
+ * @returns {Promise<string>} Path to saved mp4 file
  */
 async function generateVideo(prompt,filePath) {
-  const url = `${endpoint}/openai/v1/video/generations/jobs?api-version=preview`;
+  const url = `${videoEndpoint}/openai/v1/video/generations/jobs?api-version=${videoApiVersion}`;
   const body = { "prompt": prompt, "n_variants": 1, "n_seconds":5, "height": "480","width":854, "model": videoDeploymentName };
+  const headers = { 'api-key': videoApiKey, 'Content-Type': 'application/json' };
   console.log('Generating video: request body = ', body);
   const bodyJson = JSON.stringify(body);
-  let response = await axios.post(url, bodyJson, {
-     headers: { 'api-key': apiKey, 'Content-Type': 'application/json' }
-   });
+  let response = await axios.post(url, bodyJson, { headers });
 
   const jobId = response.data.id;
   console.log(`Video generation job started with ID: ${jobId}`);
   let status = response.data.status;
+
+  const statusUrl = `${videoEndpoint}/openai/v1/video/generations/jobs/${jobId}?api-version=${videoApiVersion}`;
   while (status !== "succeeded" && status !== "failed") {
     await new Promise((resolve) => setTimeout(resolve, 5000));
     response = await axios.get(statusUrl, { headers });
@@ -162,12 +189,12 @@ async function generateVideo(prompt,filePath) {
     if (generations.length > 0) {
       console.log("Video generation succeeded.");
       const generationId = generations[0].id;
-      const video_url = `${endpoint}openai/v1/video/generations/${generationId}/content/video${params}`;
+      const video_url = `${videoEndpoint}/openai/v1/video/generations/${generationId}/content/video?api-version=${videoApiVersion}`;
       const videoResponse = await axios.get(video_url, { headers, responseType: "arraybuffer" });
 
       if (videoResponse.status === 200) {
         fs.writeFileSync(filePath, videoResponse.data);
-        console.log(`Generated video saved as "${outputFilename}"`);
+        console.log(`Generated video saved as "${filePath}"`);
         return filePath;
       } else {
         console.error("Failed to retrieve video content.");

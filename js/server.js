@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { generateInputs, generateImage, editImage } from './generator.js';
+import { generateInputs, generateImage, editImage, generateVideo } from './generator.js';
 
 // __dirname replacement
 const __filename = fileURLToPath(import.meta.url);
@@ -67,6 +67,24 @@ app.post('/api/editImage', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Endpoint to generate video and return file path
+app.post('/api/generateVideo', async (req, res) => {
+  const { prompt, template } = req.body;
+  try {
+    // save image to JPG on server
+    const name = (template || 'default').replace(/[^\w\-]/g, '');
+    const fileName = `pop_video_${name}.mp4`;
+    const filePath = path.join(__dirname, fileName);
+    await generateVideo(prompt, filePath);
+    // return URL for client to fetch
+    res.json({ url: `/${fileName}` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // Serve index.html for root
 app.get('/', (req, res) => {

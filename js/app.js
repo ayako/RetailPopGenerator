@@ -63,7 +63,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   genBtn.addEventListener('click', async () => {
     genBtn.disabled = true;
-    const promptBase = `${captionsJa.value} Clearly shown Main Text: ${copyTextMain.value}, Sub Text: ${copyTextSub.value}`;
     imageOutput.innerHTML = '';
 
     // 準備：選択テンプレート
@@ -87,24 +86,54 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 並行fetch→結果差し替え
     await Promise.all(containers.map(async ({ tplName, container }) => {
-      const prompt = tplName
-        ? `${promptBase} Key Colors: ${templates.find(tpl => tpl.name === tplName).color}  Dominant color: #FFFFFF`
-        : promptBase;
-      const res = await fetch('/api/generateImage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, template: tplName || 'default' })
-      });
-      const data = await res.json();
 
-      // 差し替え
-      container.innerHTML = '';
-      const caption = document.createElement('p');
-      caption.textContent = tplName || 'Default';
-      const img = document.createElement('img');
-      img.src = data.url;
-      container.appendChild(caption);
-      container.appendChild(img);
+      // Toggle ON = Video, OFF = Image
+      if (toggleGenerate.checked) {
+        // Generate Video
+        const promptBase = `${captionsJa.value}`;
+        const prompt = tplName
+          ? `${promptBase} Key Colors: ${templates.find(tpl => tpl.name === tplName).color}  Dominant color: #FFFFFF`
+          : promptBase;
+        const res = await fetch('/api/generateVideo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, template: tplName || 'default' })
+        });
+        const data = await res.json();
+
+        // 差し替え
+        container.innerHTML = '';
+        const tpl = document.createElement('p');
+        tpl.textContent = tplName || 'Default';
+        const video = document.createElement('video');
+        video.src = data.url;
+        video.controls = true;
+        container.appendChild(tpl);
+        container.appendChild(video);
+      }
+      else {
+        // Generate Image
+        const promptBase = `${captionsJa.value} Clearly shown Main Text: ${copyTextMain.value}, Sub Text: ${copyTextSub.value}`;
+        const prompt = tplName
+          ? `${promptBase} Key Colors: ${templates.find(tpl => tpl.name === tplName).color}  Dominant color: #FFFFFF`
+          : promptBase;
+        const res = await fetch('/api/generateImage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, template: tplName || 'default' })
+        });
+        const data = await res.json();
+
+        // 差し替え
+        container.innerHTML = '';
+        const tpl = document.createElement('p');
+        tpl.textContent = tplName || 'Default';
+        const img = document.createElement('img');
+        img.src = data.url;
+        container.appendChild(tpl);
+        container.appendChild(img);
+      }
+ 
     }));
 
     // once images are rendered, enable edit prompt
@@ -169,5 +198,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Initialize toggle button text
   toggleLabel.textContent = toggleGenerate.checked ? 'Video' : 'Image';
+
+  // Modify download functionality for images to open Save As dialog
+  imageOutput.addEventListener('click', (event) => {
+    const target = event.target;
+    if (target.tagName === 'IMG') {
+      const link = document.createElement('a');
+      link.href = target.src;
+      link.download = '';
+      link.click();
+    }
+  });
 
 });

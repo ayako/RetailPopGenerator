@@ -25,6 +25,7 @@ pip-log.txt
 
 # Generated images
 pop_image*.jpg
+pop_video*.mp4
 
 # OS-specific files
 .DS_Store
