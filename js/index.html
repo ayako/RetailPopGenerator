@@ -32,11 +32,12 @@
           <input type="text" id="copy-text-sub" />
         </div>
         <div class="field">
-          <label for="captions-ja">画像 or 動画生成キャプション | Prompt to generate image or video</label>
-          <textarea id="captions-ja" rows="3"></textarea>
+          <label for="image-prompt">画像生成キャプション | Prompt to generate image</label>
+          <textarea id="image-prompt" rows="3"></textarea>
         </div>
         <div class="field">
-          <div id="captions-en" class="readonly"></div>
+          <label for="video-prompt">動画生成キャプション | Prompt to generate video</label>
+          <textarea id="video-prompt" rows="3"></textarea>
         </div>
       </div>
 
@@ -63,7 +64,7 @@
       </div>
       <div class="section">
         <div class="field">
-          <label for="edit-prompt">編集用プロンプト | Edit Prompt</label>
+          <label for="edit-prompt">編集用プロンプト | Editing Prompt</label>
           <textarea id="edit-prompt" rows="3" disabled></textarea>
           <button id="edit-image-btn" disabled>Edit Image</button>
         </div>

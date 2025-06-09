@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { generateInputs, generateImage, editImage, generateVideo } from './generator.js';
+import fs from 'fs';
 
 // __dirname replacement
 const __filename = fileURLToPath(import.meta.url);
@@ -21,6 +22,15 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json({ limit: '1mb' }));
 // Serve all files in this directory as static (index.html, app.js, styles.css, generated JPGs)
 app.use(express.static(__dirname));
+
+// --- Tempディレクトリの用意 ---
+const tempDir = path.join(__dirname, 'temp');
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir);
+}
+
+// Tempディレクトリを静的公開
+app.use('/temp', express.static(tempDir));
 
 // Load template.json for front-end
 app.get('/template.json', (req, res) => {
@@ -39,17 +49,26 @@ app.post('/api/generateInputs', async (req, res) => {
   }
 });
 
+// --- サーバ起動時またはページリロード時にTempをクリア ---
+app.post('/api/clearTemp', (req, res) => {
+  fs.readdir(tempDir, (err, files) => {
+    if (err) return res.status(500).json({ error: err.message });
+    for (const file of files) {
+      fs.unlinkSync(path.join(tempDir, file));
+    }
+    res.json({ cleared: true });
+  });
+});
+
 // Endpoint to generate image and return file path
 app.post('/api/generateImage', async (req, res) => {
   const { prompt, template } = req.body;
   try {
-    // save image to JPG on server
     const name = (template || 'default').replace(/[^\w\-]/g, '');
-    const fileName = `pop_image_${name}.jpg`;
-    const filePath = path.join(__dirname, fileName);
+    const fileName = `${name}_${Date.now()}.jpg`;
+    const filePath = path.join(tempDir, fileName);
     await generateImage(prompt, filePath);
-    // return URL for client to fetch
-    res.json({ url: `/${fileName}` });
+    res.json({ url: `/temp/${fileName}` });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
@@ -60,8 +79,10 @@ app.post('/api/generateImage', async (req, res) => {
 app.post('/api/editImage', async (req, res) => {
   const { prompt, filePath } = req.body;
   try {
-    await editImage(prompt, filePath);
-    res.json({ url: `/${filePath}` });
+    const fileName = `${path.basename(filePath).replace(/\.jpg$/, '')}_edited_${Date.now()}.jpg`;
+    const newFilePath = path.join(tempDir, fileName);
+    await editImage(prompt, filePath, newFilePath);
+    res.json({ url: `/temp/${fileName}` });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
@@ -72,19 +93,16 @@ app.post('/api/editImage', async (req, res) => {
 app.post('/api/generateVideo', async (req, res) => {
   const { prompt, template } = req.body;
   try {
-    // save image to JPG on server
     const name = (template || 'default').replace(/[^\w\-]/g, '');
-    const fileName = `pop_video_${name}.mp4`;
-    const filePath = path.join(__dirname, fileName);
+    const fileName = `${name}_${Date.now()}.mp4`;
+    const filePath = path.join(tempDir, fileName);
     await generateVideo(prompt, filePath);
-    // return URL for client to fetch
-    res.json({ url: `/${fileName}` });
+    res.json({ url: `/temp/${fileName}` });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // Serve index.html for root
 app.get('/', (req, res) => {

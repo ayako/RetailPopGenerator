@@ -12,6 +12,7 @@ h1 { margin-bottom: 10px; }
 .template-item.selected { border-color: #007bff; box-shadow: 0 0 5px rgba(0,123,255,0.5); }
 .images-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
 .images-grid img { width: 100%; border-radius: 4px; }
+.images-grid video { width: 100%; border-radius: 4px; }
 
 .layout {
   display: grid;
@@ -150,4 +151,12 @@ button {
 .toggle-container input[type="checkbox"]:checked + .toggle-label {
   background: #999;
   transform: translateX(46px);
+}
+
+/* Responsive video: fit to container width */
+video, .responsive-video {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
 }

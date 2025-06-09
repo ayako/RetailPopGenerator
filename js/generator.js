@@ -19,15 +19,12 @@ if (!process.env.WEBSITE_SITE_NAME) {
   console.log('Azure environment detected: using App Settings variables');
 }
 
-const endpoint = process.env['AOAI_ENDPOINT']?.replace(/\/$/, '') || '';
 const chatEndpoint = process.env['AOAI_CHAT_ENDPOINT']?.replace(/\/$/, '') || '';
 const imageEndpoint = process.env['AOAI_IMAGE_ENDPOINT']?.replace(/\/$/, '') || '';
 const videoEndpoint = process.env['AOAI_VIDEO_ENDPOINT']?.replace(/\/$/, '') || '';
-const apiKey = process.env['AOAI_KEY'] || '';
 const chatApiKey = process.env['AOAI_CHAT_KEY'] || '';
 const imageApiKey = process.env['AOAI_IMAGE_KEY'] || '';
 const videoApiKey = process.env['AOAI_VIDEO_KEY'] || '';
-const apiVersion = process.env['AOAI_API_VERSION'] || '';
 const chatApiVersion = process.env['AOAI_CHAT_API_VERSION'] || '';
 const imageApiVersion = process.env['AOAI_IMAGE_API_VERSION'] || '';
 const videoApiVersion = process.env['AOAI_VIDEO_API_VERSION'] || '';
@@ -41,7 +38,6 @@ const chatDeploymentName = process.env['AOAI_CHAT_DEPLOYMENT_NAME'] || '';
  * @returns {Promise<object>} Parsed JSON with copy_text_main, copy_text_sub, captions_en, captions_ja
  */
 async function generateInputs(objectives) {
-
   const url = `${chatEndpoint}/openai/deployments/${chatDeploymentName}/chat/completions?api-version=${chatApiVersion}`;
   console.log('Create inputs with Chat Completions. Objectives:', objectives);
   const resp = await axios.post(url, {
@@ -126,12 +122,12 @@ async function generateImage(prompt, filePath) {
  * @param {string} filePath Absolute path to the image to edit
  * @returns {Promise<string>} The same filePath after editing
  */
-async function editImage(prompt, filePath) {
-  console.log(`Editing image ${filePath} with prompt: ${prompt}`);
+async function editImage(prompt, inputFilePath, filePath) {
+  console.log(`Editing image ${inputFilePath} with prompt: ${prompt}`);
   const url = `${imageEndpoint}/openai/deployments/${imageDeploymentName}/images/edits?api-version=${imageApiVersion}`;
 
   const form = new FormData();
-  form.append('image', fs.createReadStream(filePath));
+  form.append('image', fs.createReadStream(inputFilePath));
   form.append('prompt', prompt);
   form.append('size', '1024x1024');
   form.append('n', 1);
@@ -166,7 +162,7 @@ async function editImage(prompt, filePath) {
  */
 async function generateVideo(prompt,filePath) {
   const url = `${videoEndpoint}/openai/v1/video/generations/jobs?api-version=${videoApiVersion}`;
-  const body = { "prompt": prompt, "n_variants": 1, "n_seconds":5, "height": "480","width":854, "model": videoDeploymentName };
+  const body = { "prompt": prompt, "n_variants": 1, "n_seconds":5, "height": 480,"width":854, "model": videoDeploymentName };
   const headers = { 'api-key': videoApiKey, 'Content-Type': 'application/json' };
   console.log('Generating video: request body = ', body);
   const bodyJson = JSON.stringify(body);

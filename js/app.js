@@ -3,10 +3,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const genInputsBtn = document.getElementById('generate-inputs-btn');
   const copyTextMain = document.getElementById('copy-text-main');
   const copyTextSub = document.getElementById('copy-text-sub');
-  const captionsJa = document.getElementById('captions-ja');
+  const imagePrompt = document.getElementById('image-prompt');
+  const videoPrompt = document.getElementById('video-prompt');
   const genBtn = document.getElementById('generate-btn');
   const imageOutput = document.getElementById('image-output');
-  const captionsEnDiv = document.getElementById('captions-en');
   const templateContainer = document.getElementById('template-container');
   const editPrompt   = document.getElementById('edit-prompt');
   const editImageBtn = document.getElementById('edit-image-btn');
@@ -27,6 +27,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     templateContainer.appendChild(label);
   });
 
+  // ページロード時にTempクリア
+  await fetch('/api/clearTemp', { method: 'POST' });
+
   // Generate inputs
   genInputsBtn.addEventListener('click', async () => {
     const objectives = objectivesInput.value.trim();
@@ -40,8 +43,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const data = await res.json();
     copyTextMain.value = data.copy_text_main;
     copyTextSub.value = data.copy_text_sub;
-    captionsJa.value = data.image_prompt_ja;
-    captionsEnDiv.textContent = data.image_prompt_en;
+    imagePrompt.value = data.image_prompt_ja;
+    videoPrompt.value = data.video_prompt_ja;
     genInputsBtn.disabled = false;
     genBtn.disabled = false;
   });
@@ -55,11 +58,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   function updateGenPopState() {
     genBtn.disabled = !(
       copyTextMain.value.trim() &&
-      captionsJa.value.trim()
+      imagePrompt.value.trim()
     );
   }
   copyTextMain.addEventListener('input', updateGenPopState);
-  captionsJa.addEventListener('input', updateGenPopState);
+  imagePrompt.addEventListener('input', updateGenPopState);
 
   genBtn.addEventListener('click', async () => {
     genBtn.disabled = true;
@@ -90,8 +93,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Toggle ON = Video, OFF = Image
       if (toggleGenerate.checked) {
         // Generate Video
-        const promptBase = `${captionsJa.value}`;
-        const prompt = tplName
+        // const promptBase = `${videoPrompt.value}`;
+        const promptBase = `${videoPrompt.value} Clearly show text as Main Text: ${copyTextMain.value}, Sub Text: ${copyTextSub.value}`;        const prompt = tplName
           ? `${promptBase} Key Colors: ${templates.find(tpl => tpl.name === tplName).color}  Dominant color: #FFFFFF`
           : promptBase;
         const res = await fetch('/api/generateVideo', {
@@ -113,7 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       else {
         // Generate Image
-        const promptBase = `${captionsJa.value} Clearly shown Main Text: ${copyTextMain.value}, Sub Text: ${copyTextSub.value}`;
+        const promptBase = `${imagePrompt.value} Clearly shown Main Text: ${copyTextMain.value}, Sub Text: ${copyTextSub.value}`;
         const prompt = tplName
           ? `${promptBase} Key Colors: ${templates.find(tpl => tpl.name === tplName).color}  Dominant color: #FFFFFF`
           : promptBase;
@@ -132,23 +135,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         img.src = data.url;
         container.appendChild(tpl);
         container.appendChild(img);
+
+        // once images are rendered, enable edit prompt
+        editPrompt.disabled = false;
+        // clear any previous value
+        editPrompt.value = '';
+        editImageBtn.disabled = false;
       }
  
     }));
 
-    // once images are rendered, enable edit prompt
-    editPrompt.disabled = false;
-    // clear any previous value and disable button until input
-    editPrompt.value = '';
-    editImageBtn.disabled = true;
-
     genBtn.disabled = false;
   });
 
-  // enable the Edit Image button only when there is edit text
-  editPrompt.addEventListener('input', () => {
-    editImageBtn.disabled = editPrompt.value.trim() === '';
-  });
 
   // after rendering images and enabling editPrompt/editImageBtn
   editImageBtn.addEventListener('click', async () => {
